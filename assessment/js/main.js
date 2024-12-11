@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 data-index="${index}">${option}</button>
                     `).join('')}
                 </div>
-                <p class="question-count">共${totalQuestions}题</p>
             </div>
         `;
         questionContainer.innerHTML = html;
