@@ -1,0 +1,106 @@
+.assessment {
+    padding: var(--spacing-sm) 0;
+}
+
+.assessment__progress {
+    margin-bottom: var(--spacing-lg);
+}
+
+.progress-bar {
+    height: 8px;
+    background-color: var(--color-bg-secondary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: var(--spacing-sm);
+}
+
+.progress-bar__fill {
+    height: 100%;
+    background-color: var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.question-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+    background-color: var(--color-bg-primary);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.question {
+    display: none;
+}
+
+.question.current {
+    display: block;
+}
+
+.question h2 {
+    margin-bottom: var(--spacing-xl);
+    text-align: center;
+}
+
+.options {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.btn--option {
+    width: 100%;
+    text-align: left;
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    padding: var(--spacing-lg);
+}
+
+.btn--option:hover {
+    background-color: var(--color-bg-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn--option.selected {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.assessment__actions {
+    display: flex;
+    justify-content: center;
+    max-width: 600px;
+    margin: var(--spacing-xl) auto 0;
+}
+
+.assessment__header {
+    display: flex;
+    justify-content: flex-start;
+    height: 32px;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.btn--text {
+    background: none;
+    color: var(--color-text-secondary);
+    padding: 0 var(--spacing-md);
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.btn--text:hover {
+    color: var(--color-primary);
+}
+
+.question-count {
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    margin-top: var(--spacing-md);
+} 

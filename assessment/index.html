@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关系契合度测评 - AI Love Match</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main class="assessment">
+        <div class="container">
+            <div class="assessment__header">
+                <a href="/" class="btn btn--text">返回首页</a>
+            </div>
+            <div class="assessment__progress">
+                <div class="progress-bar">
+                    <div class="progress-bar__fill" style="width: 0%"></div>
+                </div>
+                <p class="progress-text">第 1 题 / 23</p>
+            </div>
+
+            <div class="question-container">
+                <!-- 问题将通过JavaScript动态加载 -->
+            </div>
+
+            <div class="assessment__actions">
+                <button class="btn btn--secondary" id="prevQuestion">上一题</button>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/questions.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html> 

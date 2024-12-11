@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测评结果 - AI Love Match</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .result {
+            padding: var(--spacing-xxl) 0;
+            background-color: var(--color-bg-secondary);
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .result-card {
+            max-width: 800px;
+            margin: 0 auto;
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-xl);
+            background-color: var(--color-bg-primary);
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .result-header h2 {
+            font-size: 28px;
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .total-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--color-primary);
+            text-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
+        }
+        
+        .score-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .score-card {
+            text-align: center;
+            padding: var(--spacing-md);
+            background-color: var(--color-bg-secondary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .score-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .score-card h3 {
+            font-size: 16px;
+            color: var(--color-text-secondary);
+        }
+        
+        .score-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--color-primary);
+            text-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
+        }
+        
+        .score-card p {
+            margin: 0;
+            color: var(--color-text-secondary);
+        }
+        
+        .analysis-section {
+            margin-bottom: var(--spacing-xl);
+            line-height: 1.8;
+        }
+        
+        .analysis-section h3 {
+            font-size: 20px;
+            margin-bottom: var(--spacing-md);
+            color: var(--color-text-primary);
+        }
+        
+        .analysis-section p {
+            margin-bottom: var(--spacing-md);
+            color: var(--color-text-secondary);
+        }
+        
+        .suggestion-section {
+            background-color: var(--color-bg-secondary);
+            padding: var(--spacing-xl);
+            border-radius: 8px;
+            margin-bottom: var(--spacing-xl);
+            line-height: 1.8;
+        }
+        
+        .suggestion-section h3 {
+            font-size: 20px;
+            margin-bottom: var(--spacing-md);
+            color: var(--color-text-primary);
+        }
+        
+        .suggestion-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .suggestion-section li {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: var(--spacing-sm);
+            color: var(--color-text-secondary);
+        }
+        
+        .suggestion-section li::before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: var(--color-primary);
+        }
+        
+        .action-section {
+            text-align: center;
+            margin-top: var(--spacing-xxl);
+        }
+        
+        .action-section .btn {
+            margin: 0 var(--spacing-sm);
+        }
+        
+        @media (max-width: 1024px) {
+            /* 删除不需要的媒体查询 */
+        }
+        
+        @media (max-width: 768px) {
+            .result-card {
+                margin: 0 var(--spacing-md);
+            }
+            
+            .score-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .score-value {
+                font-size: 28px;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--spacing-md);
+            }
+            
+            .total-score {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="result">
+        <div class="container">
+            <div class="result-card">
+                <div class="result-header">
+                    <h2>你的理想伴侣画像</h2>
+                </div>
+
+                <div class="analysis-section">
+                    <div id="analysis"></div>
+                </div>
+
+                <div class="suggestion-section">
+                    <h3>寻爱建议</h3>
+                    <div id="suggestions"></div>
+                </div>
+
+                <div class="action-section">
+                    <button class="btn btn--primary" onclick="window.location.href='/'">返回首页</button>
+                    <button class="btn btn--secondary" onclick="window.location.href='/assessment/'">重新测评</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import questions from './js/questions.js';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取URL参数
+            const params = new URLSearchParams(window.location.search);
+            const personalityScore = parseInt(params.get('p')) || 0;
+            const valuesScore = parseInt(params.get('v')) || 0;
+            const lifestyleScore = parseInt(params.get('l')) || 0;
+            
+            // 从URL获取答案数据并添加调试信息
+            const answers = [];
+            console.log('URL Parameters:', Object.fromEntries(params.entries()));
+            
+            for(let i = 0; i < questions.length; i++) {
+                const answer = parseInt(params.get(`a${i}`));
+                answers[i] = answer === -1 ? null : answer;
+                console.log(`Question ${i + 1} answer:`, answers[i]);
+            }
+
+            console.log('Parsed Answers:', answers);
+            console.log('Scores:', {personalityScore, valuesScore, lifestyleScore});
+
+            function generatePortrait(p, v, l) {
+                // 获取基本信息和具体选择
+                const gender = answers[0]; // 性别
+                const age = answers[1]; // 年龄
+                const personalityAnswers = answers.slice(2, 8);
+                const valueAnswers = answers.slice(8, 12);
+                const lifestyleAnswers = answers.slice(12, 15);
+
+                // 根据性格测评答案生成性格描述
+                let personalityDesc = '';
+                // 遇到困难时的反应
+                if (personalityAnswers[0] <= 1) {
+                    personalityDesc = '善解人意、乐于给予支持，';
+                } else {
+                    personalityDesc = '懂得保持适度距离、尊重个人空间，';
+                }
+                
+                // 遇到分歧时的处理
+                if (personalityAnswers[1] === 0) {
+                    personalityDesc += '善于沟通、愿意主动化解矛盾，';
+                } else if (personalityAnswers[1] === 1) {
+                    personalityDesc += '有耐心、懂得倾听，';
+                }
+                
+                // 最重要的事情
+                if (personalityAnswers[4] === 0) {
+                    personalityDesc += '重视真诚沟通。';
+                } else if (personalityAnswers[4] === 1) {
+                    personalityDesc += '注重相互理解。';
+                } else if (personalityAnswers[4] === 2) {
+                    personalityDesc += '期待共同成长。';
+                } else {
+                    personalityDesc += '追求新鲜感。';
+                }
+
+                // 根据价值观答案生成三观描述
+                let valuesDesc = '';
+                // 感情发展节奏
+                if (valueAnswers[0] === 0) {
+                    valuesDesc = '对感情认真负责，';
+                } else if (valueAnswers[0] === 2) {
+                    valuesDesc = '懂得把握当下，';
+                }
+                
+                // 收入期望
+                if (valueAnswers[1] >= 2) {
+                    valuesDesc += '有较高的事业追求，';
+                } else {
+                    valuesDesc += '注重生活质量，';
+                }
+                
+                // 未来规划和孩子计划的结合
+                if (valueAnswers[2] === 0 && valueAnswers[3] === 0) {
+                    valuesDesc += '向往稳定的家庭生活。';
+                } else if (valueAnswers[2] === 1) {
+                    valuesDesc += '热爱探索生活的可能。';
+                } else if (valueAnswers[2] === 2) {
+                    valuesDesc += '有明确的人生目标。';
+                }
+
+                // 根据生活习惯答案生成生活方式描述
+                let lifestyleDesc = '';
+                // 约会频率和消费观的结合
+                if (lifestyleAnswers[0] <= 1) {
+                    lifestyleDesc = lifestyleAnswers[1] === 0 ? 
+                        '愿意投入时间经营感情，注重平等与独立，' :
+                        '愿意投入时间经营感情，乐于付出与分享，';
+                } else {
+                    lifestyleDesc = '懂得平衡生活与感情，';
+                }
+                
+                // 异地恋态度
+                if (lifestyleAnswers[2] <= 1) {
+                    lifestyleDesc += '相信感情超越距离的力量。';
+                } else {
+                    lifestyleDesc += '更看重实际的陪伴。';
+                }
+
+                // 根据性别和年龄段差异化职业推荐
+                const career = generateCareerRecommendation(gender, age, valueAnswers, personalityAnswers);
+                
+                // 生成更有针对性的建议
+                const suggestions = generateSuggestions(gender, age, personalityAnswers, valueAnswers, lifestyleAnswers);
+
+                return {
+                    personality: personalityDesc,
+                    values: valuesDesc,
+                    lifestyle: lifestyleDesc,
+                    career: career,
+                    suggestions: suggestions
+                };
+            }
+
+            // 根据性别和年龄段差异化推荐职业和场所
+            function generateCareerRecommendation(gender, age, valueAnswers, personalityAnswers) {
+                let jobs = '';
+                let places = '';
+
+                // 高收入期望 + 性别差异
+                if (valueAnswers[1] >= 2) {
+                    if (gender === 0) { // 男性
+                        if (personalityAnswers[1] === 0) {
+                            jobs = '企业高管、投资顾问、科技创业者';
+                            places = '高端商务活动、科技峰会、创业沙龙';
+                        } else {
+                            jobs = '金融分析师、技术专家、研究员';
+                            places = '专业研讨会、技术交流会、实验室';
+                        }
+                    } else { // 女性
+                        if (personalityAnswers[1] === 0) {
+                            jobs = '投资经理、品牌总监、传媒主管';
+                            places = '时尚活动、品牌发布会、媒体聚会';
+                        } else {
+                            jobs = '金融顾问、设计总监、学术研究者';
+                            places = '艺术展览、学术论坛、设计工作室';
+                        }
+                    }
+                } else {
+                    // 根据年龄段推荐
+                    if (age <= 1) { // 25岁以下
+                        jobs = '新媒体运营、教育工作者、创意设计师';
+                        places = '文创园区、教育机构、创意市集';
+                    } else if (age === 2) { // 26-30岁
+                        jobs = '医生、工程师、咨询顾问';
+                        places = '专业论坛、行业交流会、高端健身房';
+                    } else { // 31岁以上
+                        jobs = '企业管理者、专业人士、资深顾问';
+                        places = '高尔夫球场、品酒会、私人会所';
+                    }
+                }
+
+                return { jobs, places };
+            }
+
+            // 生成更有针对性的建议
+            function generateSuggestions(gender, age, personalityAnswers, valueAnswers, lifestyleAnswers) {
+                const suggestions = [];
+                
+                // 基于性别的建议
+                if (gender === 0) { // 男性
+                    if (valueAnswers[1] >= 2) {
+                        suggestions.push('建议参加高端商务社交活动，展现个人魅力');
+                    } else {
+                        suggestions.push('可以通过志趣相投的兴趣小组认识优质异性');
+                    }
+                } else { // 女性
+                    if (valueAnswers[1] >= 2) {
+                        suggestions.push('建议参加高质量的生活方式品鉴活动');
+                    } else {
+                        suggestions.push('可以通过参加插花、烘焙等兴趣课程结识新朋友');
+                    }
+                }
+
+                // 基于年龄段的建议
+                if (age <= 1) {
+                    suggestions.push('多参与年轻人的社交活动和兴趣社群');
+                } else if (age === 2) {
+                    suggestions.push('可以通过高质量的社交平台扩展人脉');
+                } else {
+                    suggestions.push('建议参加成熟稳重的交友活动');
+                }
+
+                // 基于性格和生活方式的建议
+                if (personalityAnswers[2] === 0) {
+                    suggestions.push('尝试参加一些浪漫的主题活动');
+                } else if (personalityAnswers[2] === 2) {
+                    suggestions.push('可以通过户外运动认识志同道合的朋友');
+                }
+
+                // 添加通用建议
+                suggestions.push('保持开放的心态，给彼此了解的机会');
+
+                return suggestions;
+            }
+
+            // 生成画像并显示
+            const portrait = generatePortrait(personalityScore, valuesScore, lifestyleScore);
+
+            // 详细分析
+            analysis.innerHTML = `
+                <div class="aspect-analysis">
+                    <p><strong>性格特质：</strong>${portrait.personality}</p>
+                    <p><strong>三观特点：</strong>${portrait.values}</p>
+                    <p><strong>生活方式：</strong>${portrait.lifestyle}</p>
+                    <p><strong>职业倾向：</strong>${portrait.career.jobs}</p>
+                    <p><strong>邂逅建议：</strong>${portrait.career.places}</p>
+                </div>
+            `;
+
+            // 建议
+            suggestions.innerHTML = `
+                <ul class="suggestion-list">
+                    ${portrait.suggestions.map(s => `<li>${s}</li>`).join('')}
+                </ul>
+            `;
+        });
+    </script>
+</body>
+</html>
